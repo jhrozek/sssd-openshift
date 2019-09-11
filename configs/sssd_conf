@@ -1,0 +1,15 @@
+[domain/ocp]
+id_provider = openshift
+access_provider = openshift
+# IMPORTANT: change this to your API server
+ocp_api_server_url = https://YOURCLUSTER:PORT
+# Only members of this group will be allowed to log in
+ocp_allowed_groups = cluster-admins
+# Additional group to add the user to. Useful if coupled with sudo settings
+ocp_additional_group_name = ocp-sudoers
+# uncomment for debugging
+debug_level = 10
+
+[sssd]
+services = nss, pam
+domains = ocp
