@@ -236,7 +236,7 @@ sh-4.2# chroot /host
 We can grab the packages from a tarball in this repo:
 ```
 sh-4.2# cd tmp
-sh-4.2# curl -Ok https://github.com/jhrozek/sssd-openshift/blob/master/rpms/sssd-openshift.tar.bz2
+sh-4.2# curl -LOk https://github.com/jhrozek/sssd-openshift/raw/master/rpms/sssd-openshift.tar.bz2
 sh-4.2# tar xfj sssd-openshift.tar.bz2
 sh-4.2# cd sssd-openshift
 ```
