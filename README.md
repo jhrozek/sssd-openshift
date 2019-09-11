@@ -397,7 +397,36 @@ Says that the user was denided (`res=failed`) when the access control
 (`type=USER_ACCT`) was attempted.
 
 ## Technical details
-TBD
+This section describes the flow, without requiring much of SSSD knowledge.
 
-## Further work
-TBD
+* The user acquires an OAuth token using `oc login` or similar. The token can be viewed with e.g. `oc whoami -t`
+* The user logs in to a bastion host from which the cluster network is reachable
+* From there the user executes `ssh username@node`. The `username` must match their user name in a OpenShift IDP
+* Because even before authentication can be performed, the Name Service Switch (NSS) interface must return a POSIX user entry, the `nss_sss` module always returns a valid user
+  * This is a temporary hack until we can get SSSD to get an authenticated request to see if the user exists. It was suggested that SSSD could authenticate with the same client certificate that `kubelet` uses on the worker node, but details are to be fleshed out.
+    * At the moment, to prevent someone filling up the SSSD cache just by requesting random usernames, we have added
+      * A hardcoded quota, not more than 100 user entries can be requested, after the quota is reached, further requests will just not return anything
+      * If a user does not authenticate within a certain time (currently hardcoded to 60 seconds), their user entry is removed from the SSSD cache to free up the space
+    * User UID and GID numbers are just picked from a range that is at the moment configurable from `sssd.conf`. In the future we could make this configurable at the cluster level or otherwise
+ * `sshd` proceeds with the authentication, the flow eventually reaches `pam_sss.so` which queries for a password
+ * The user enters their OAuth token
+ * The token is validated by issuing a GET request against the tilda interface (`/apis/user.openshift.io/v1/users/~`) with the token added to the `Authorization: Bearer` header
+    * It was also suggested to use the `TokenReview` API instead. This would make the provider work with vanilla Kubernetes as well, but SSSD would have to authenticate in order to use the API.
+    * On failure, a HTTP error code is returned and the authentication ends
+    * On success, this request returns a JSON object describing the user. This JSON object contains `identities` object which in turn lists the user name and a `groups` object that in turns lists the groups the user is a member of.
+    * The user name returned from the tilda API must match the username provided by the user through the PAM stack
+    * The user and their groups are saved to the SSSD cache. The OpenShift-originating groups are not visible on the OS-level, though (there's no need to, we'd just have to assign a GID to each of them).
+    * The user is also added to a group specified in `sssd.conf`'s `ocp_additional_groups` option. This group has a GID assigned as is visible on the OS level. This is important as sudo would be configured to allow the user based on membership in this group.
+* The login process enters the access phase
+    * SSSD checks the cached record for this user and verifies if the user is a member of a group configured in the `sssd.conf`
+* On success, the session is opened. As long as sudo is configured to allow members of the additional group, the user can sudo.
+
+## Future work
+In no particular order and without going too deep into details:
+ * Some of the changes to the CoreOS hosts that were semi-manually set up using `MachineConfig` objects could be set up by default on the CoreOS hosts. This might include installing the `sssd-openshift` provider by default, starting the sssd service, configuring the PAM stack and so on.
+ * The SELinux policy must be amended to allow sssd_be to curl out.
+ * Instead of adding the user to an additional group, we could add them to the wheel group. This migth require changing `nsswitch.conf` on the hosts to allow [group merging](https://sourceware.org/glibc/wiki/Proposals/GroupMerging)
+ * On the SSSD side:
+    * We should consider validating the user names instead of always returning a user and then reaping the user entry if the user does not log in
+    * After logout (perhaps by catching a signal from the `logind` systemd service), we could clean up the user entry
+    * The ranges could be either read from a `ConfigMap` or a similar object or even from a systemd-provided range (see e.g. [this document](https://systemd.io/UIDS-GIDS.html).
