@@ -45,6 +45,11 @@ OpenShift groups. After login, the user is added into a group that permits
 them to call `sudo`. The workflow is described in more detail later in
 the document.
 
+## Demo
+
+We prepared a short [![asciinema demo](https://asciinema.org/a/gerfvnYukDZJqTbgGnkr6yQ0k.svg)](https://asciinema.org/a/gerfvnYukDZJqTbgGnkr6yQ0k)
+that shows the whole flow in action.
+
 ## Setting up the environment
 
 This section describes the detailed steps to set up SSSD for ssh access.
@@ -264,7 +269,7 @@ sh-4.2# systemctl reboot
 
 When the node comes up, you can finally install the `sssd-openshift` package:
 ```
-sh-4.2# rpm-ostree install ./sssd-openshift-2.0.0-43.el8.3.2.x86_64.rpm
+sh-4.2# rpm-ostree install ./sssd-openshift-2.0.0-43.el8.3.3.x86_64.rpm
 ```
 And reboot again:
 ```
