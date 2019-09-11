@@ -25,6 +25,11 @@ not to displace `oc debug node/` for the general case, but rather provide
 an alternative for deployments where `oc debug node/` cannot be used due to
 regulatory issues.
 
+At the moment, this project is in a Proof-Of-Concept stage. The code is not
+the nicest, the steps to set up the environment are somewhat manual and the
+SSSD provider does not work with SELinux in enforcing mode. The purpose at
+the moment is to show what could be possible and gather feedback.
+
 ## User experience
 
 The OpenShift worker nodes are typically not reachable from outside the
