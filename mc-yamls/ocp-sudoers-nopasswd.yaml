@@ -1,0 +1,17 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 50-worker-sudoers-ocp
+spec:
+  config:
+    ignition:
+      version: 2.2.0
+    storage:
+      files:
+      - contents:
+          source: data:,%25ocp-sudoers%20%20%20%20%20%20%20%20ALL%3D%28ALL%29%20%20%20%20%20%20%20NOPASSWD%3A%20ALL%0A
+        filesystem: root
+        mode: 0600
+        path: /etc/sudoers.d/ocp-sudoers-nopasswd

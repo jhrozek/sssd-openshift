@@ -1,0 +1,17 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 50-worker-sssd-conf
+spec:
+  config:
+    ignition:
+      version: 2.2.0
+    storage:
+      files:
+      - contents:
+          source: data:,%5Bdomain/ocp%5D%0Aid_provider%20%3D%20openshift%0Aaccess_provider%20%3D%20openshift%0Aocp_api_server_url%20%3D%20https%3A//api.jhrozek-demo.devcluster.openshift.com%3A6443%0A%23%20Only%20members%20of%20this%20group%20will%20be%20allowed%20to%20log%20in%0Aocp_allowed_groups%20%3D%20cluster-admins%0A%23%20Additional%20group%20to%20add%20the%20user%20to.%20Useful%20if%20coupled%20with%20sudo%20settings%0Aocp_additional_group_name%20%3D%20ocp-sudoers%0A%23%20uncomment%20for%20debugging%0Adebug_level%20%3D%2010%0A%0A%5Bsssd%5D%0Aservices%20%3D%20nss%2C%20pam%0Adomains%20%3D%20ocp%0A
+        filesystem: root
+        mode: 0600
+        path: /etc/sssd/sssd.conf
