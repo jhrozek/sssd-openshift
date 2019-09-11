@@ -47,9 +47,8 @@ the document.
 
 ## Demo
 
-We prepared a short asciinema demo
+We prepared a short asciinema demo that shows the whole flow in action.
 [![asciinema demo](https://asciinema.org/a/gerfvnYukDZJqTbgGnkr6yQ0k.svg)](https://asciinema.org/a/gerfvnYukDZJqTbgGnkr6yQ0k)
-that shows the whole flow in action.
 
 ## Setting up the environment
 
