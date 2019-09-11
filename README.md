@@ -34,7 +34,7 @@ into another worker node, pretend it's a bastion and ssh to the target
 worker node.
 
 On a high level, the flow works like this: the user is authenticated with
-their OAuth token which can be displayed with `oc debug -t`, the token
+their OAuth token which can be displayed with `oc whoami -t`, the token
 is then used as a password. Access control can be restricted to certain
 OpenShift groups. After login, the user is added into a group that permits
 them to call `sudo`. The workflow is described in more detail later in
