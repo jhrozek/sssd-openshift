@@ -48,7 +48,7 @@ the document.
 ## Demo
 
 We prepared a short asciinema demo that shows the whole flow in action.
-[![asciinema demo](https://asciinema.org/a/gerfvnYukDZJqTbgGnkr6yQ0k.svg)](https://asciinema.org/a/gerfvnYukDZJqTbgGnkr6yQ0k)
+[![asciicast](https://asciinema.org/a/LDJSvZfLEyYgpgKsnnVbPFtBd.svg)](https://asciinema.org/a/LDJSvZfLEyYgpgKsnnVbPFtBd)
 
 ## Setting up the environment
 
