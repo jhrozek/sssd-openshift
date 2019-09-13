@@ -267,7 +267,17 @@ You'll need to reboot the node to apply the new tree:
 systemctl reboot
 ```
 
-When the node comes up, you can finally install the `sssd-openshift` package:
+When the node comes up, you can finally install the `sssd-openshift` package.
+We might need to grab the tarball again because we placed it in `/tmp` earlier
+which does not survive reboot:
+```
+cd tmp
+curl -LOk https://github.com/jhrozek/sssd-openshift/raw/master/rpms/sssd-openshift.tar.bz2
+tar xfj sssd-openshift.tar.bz2
+cd sssd-openshift
+```
+
+And install the `sssd-openshift` provider:
 ```
 rpm-ostree install ./sssd-openshift-2.0.0-43.el8.3.3.x86_64.rpm
 ```
