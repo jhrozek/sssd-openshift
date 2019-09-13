@@ -73,13 +73,13 @@ would be `Secret123`.
 
 First, let's add the users:
 ```
-$ htpasswd -c -B -b ./sshcluster-htpass allowed_user Secret123
-$ htpasswd -B -b ./sshcluster-htpass denied_user Secret123
+htpasswd -c -B -b ./sshcluster-htpass allowed_user Secret123
+htpasswd -B -b ./sshcluster-htpass denied_user Secret123
 ```
 
 Create a secret that contains the htpasswd file contents:
 ```
-$ oc create secret generic htpass-secret --from-file=htpasswd=./sshcluster-htpass -n openshift-config
+oc create secret generic htpass-secret --from-file=htpasswd=./sshcluster-htpass -n openshift-config
 ```
 
 Next, create a Custom Resource that references the secret holding
@@ -101,22 +101,22 @@ spec:
 
 Save this content to a file, e.g. `httpass-cr.yaml` and apply it:
 ```
-$ oc apply -f htpass-cr.yaml
+oc apply -f htpass-cr.yaml
 ```
 As a pre-flight check, it might be a good idea to test that you can
 actually authenticate as both the users:
 ```
-$ oc login -u allowed_user
-$ oc login -u denied_user
+oc login -u allowed_user
+oc login -u denied_user
 ```
 
 Finally, we need to create a group and add the `allowed_user` user to it:
 ```
-$ oc adm groups new cluster-admins allowed_user
+oc adm groups new cluster-admins allowed_user
 ```
 And verify the group membership:
 ```
-$ oc get groups
+oc get groups
 NAME             USERS
 cluster-admins   allowed_user
 ```
@@ -141,7 +141,7 @@ evaluated by SSSD through the PAM stack, we need to switch this option to
 
 Apply the `MachineConfig` object with:
 ```
-$ oc create -f mc-yamls/sshd_config.yaml
+oc create -f mc-yamls/sshd_config.yaml
 ```
 The original file is `configs/sshd_config`. No tuning to a particular
 environment should be necessary.
@@ -155,7 +155,7 @@ we could as well craft a more minimal PAM configuration in the future.
 
 Apply the `MachineConfig` object with:
 ```
-$ oc create -f mc-yamls/enable-pam_sss.yaml
+oc create -f mc-yamls/enable-pam_sss.yaml
 ```
 The original file is `configs/etc_pam.d_password_auth`. No tuning to a
 particular environment should be necessary.
@@ -169,7 +169,7 @@ particular group to `sudo` without a password.
 
 Apply the `MachineConfig` object with:
 ```
-$ oc create -f mc-yamls/ocp-sudoers-nopasswd.yaml
+oc create -f mc-yamls/ocp-sudoers-nopasswd.yaml
 ```
 The original file is `configs/ocp-sudoers-nopasswd`. No tuning to a
 particular environment should be necessary.
@@ -181,7 +181,7 @@ NSS module can resolve the user identities.
 
 Apply the `MachineConfig` object with:
 ```
-$ oc create -f mc-yamls/enable-sss-service.yaml
+oc create -f mc-yamls/enable-sss-service.yaml
 ```
 
 #### Add a `sssd.conf` configuration file
@@ -204,7 +204,7 @@ in the `mc-yamls/sssd_conf.yaml` file.
 
 Apply the `MachineConfig` object with:
 ```
-$ oc create -f mc-yamls/sssd_conf.yaml
+oc create -f mc-yamls/sssd_conf.yaml
 ```
 
 Now we are ready with configuring the CoreOS hosts. The last thing to do
@@ -231,7 +231,7 @@ were installed on the CoreOS host in the first place.
 
 Let's log in to one of the nodes and `chroot` to the filesystem:
 ```
-$ oc debug node/WORKER_NODE
+oc debug node/WORKER_NODE
 Starting pod/WORKER_NODE-debug
 To use host binaries, run `chroot /host`
 If you don't see a command prompt, try pressing enter.
@@ -240,15 +240,15 @@ sh-4.2# chroot /host
 
 We can grab the packages from a tarball in this repo:
 ```
-sh-4.2# cd tmp
-sh-4.2# curl -LOk https://github.com/jhrozek/sssd-openshift/raw/master/rpms/sssd-openshift.tar.bz2
-sh-4.2# tar xfj sssd-openshift.tar.bz2
-sh-4.2# cd sssd-openshift
+cd tmp
+curl -LOk https://github.com/jhrozek/sssd-openshift/raw/master/rpms/sssd-openshift.tar.bz2
+tar xfj sssd-openshift.tar.bz2
+cd sssd-openshift
 ```
 
 And overlay the base packages on the host:
 ```
-sh-4.2# rpm-ostree override replace ./sssd-2.0.0-43.el8.3.3.x86_64.rpm \
+rpm-ostree override replace ./sssd-2.0.0-43.el8.3.3.x86_64.rpm \
         ./sssd-ad-2.0.0-43.el8.3.3.x86_64.rpm \
         ./sssd-client-2.0.0-43.el8.3.3.x86_64.rpm \
         ./sssd-common-2.0.0-43.el8.3.3.x86_64.rpm \
@@ -264,21 +264,21 @@ sh-4.2# rpm-ostree override replace ./sssd-2.0.0-43.el8.3.3.x86_64.rpm \
 ```
 You'll need to reboot the node to apply the new tree:
 ```
-sh-4.2# systemctl reboot
+systemctl reboot
 ```
 
 When the node comes up, you can finally install the `sssd-openshift` package:
 ```
-sh-4.2# rpm-ostree install ./sssd-openshift-2.0.0-43.el8.3.3.x86_64.rpm
+rpm-ostree install ./sssd-openshift-2.0.0-43.el8.3.3.x86_64.rpm
 ```
 And reboot again:
 ```
-sh-4.2# systemctl reboot
+systemctl reboot
 ```
 
 After the node boots up again, you should see the SSSD service running and serving the `ocp` domain:
 ```
-sh-4.2# systemctl status sssd
+systemctl status sssd
 ● sssd.service - System Security Services Daemon
    Loaded: loaded (/usr/lib/systemd/system/sssd.service; enabled; vendor preset: disabled)
    Active: active (running) since Tue 2019-09-10 11:02:21 UTC; 2min 45s ago
@@ -302,7 +302,7 @@ mode. This is of course something that absolutely needs to be changed for
 any production use of this feature. Run `oc debug node/` to access the worker
 node and run:
 ```
-sh-4.2# setenforce 0
+setenforce 0
 ```
 
 ## Test the ssh access
@@ -314,8 +314,8 @@ instead of the "from" node.
 Let's start with the `allowed_user` to check the positive case. Log in as the
 user and obtain their OAuth token:
 ```
-$ oc login -u allowed_user
-$ oc whoami -t
+oc login -u allowed_user
+oc whoami -t
 8QDdFmRiKQi-DI8EQ-3ROfJGnf0zsj_ewoS58XmWIDI
 ```
 
@@ -323,7 +323,7 @@ Now run `oc debug node/FROM_NODE` where `FROM_NODE` is the address of another
 OpenShift worker node, different than the one you installed SSSD to and chroot
 to the `/host` directory:
 ```
-$ oc debug node/FROM_NODE
+oc debug node/FROM_NODE
 Starting pod/FROM_NODE-debug
 To use host binaries, run `chroot /host`
 If you don't see a command prompt, try pressing enter.
@@ -333,7 +333,7 @@ sh-4.2# chroot /host
 Now we can finally ssh to the node where we installed SSSD at. When asked for a
 password, use the token you obtained with the `oc login -t` command:
 ```
-sh-4.2# ssh allowed_user@TO_NODE
+ssh allowed_user@TO_NODE
 Password:
 Red Hat Enterprise Linux CoreOS 42.80.20190910.0
 WARNING: Direct SSH access to machines is not recommended.
